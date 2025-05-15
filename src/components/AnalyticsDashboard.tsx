@@ -59,8 +59,7 @@ const AnalyticsDashboard = () => {
                   dataKey="count" 
                   radius={[4, 4, 0, 0]}
                   fill="#8884d8"
-                  // Using the color from the data
-                  fill={(entry) => entry.color}
+                  getBarFill={(entry) => entry.color}
                 />
               </BarChart>
             </ResponsiveContainer>
