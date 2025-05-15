@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Check, Note, X } from "lucide-react";
+import { Check, Notebook, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -102,7 +102,7 @@ const NotesFeature = () => {
           
           {notes.length === 0 && !isAddingNote ? (
             <div className="text-center py-4 text-slate-500">
-              <Note className="h-8 w-8 mx-auto mb-2 text-slate-400" />
+              <Notebook className="h-8 w-8 mx-auto mb-2 text-slate-400" />
               <p>No notes yet. Click "Add Note" to create one.</p>
             </div>
           ) : (
