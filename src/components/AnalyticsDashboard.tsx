@@ -1,7 +1,7 @@
 
 import { BarChart2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from "recharts";
 
 // Mock data for the analytics
 const responseTimeData = [
@@ -55,12 +55,11 @@ const AnalyticsDashboard = () => {
                 <Tooltip 
                   formatter={(value) => [`${value} messages`, "Count"]}
                 />
-                <Bar 
-                  dataKey="count" 
-                  radius={[4, 4, 0, 0]}
-                  fill="#8884d8"
-                  getBarFill={(entry) => entry.color}
-                />
+                <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                  {messageCounts.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
