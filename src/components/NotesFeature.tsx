@@ -1,15 +1,33 @@
 
 import { useState } from "react";
-import { Check, Notebook, X } from "lucide-react";
+import { Bell, Check, Clock, Notebook, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Note {
   id: number;
   title: string;
   content: string;
   createdAt: Date;
+  reminder?: {
+    date: Date;
+    time: string;
+  };
 }
 
 const NotesFeature = () => {
@@ -24,6 +42,8 @@ const NotesFeature = () => {
   
   const [newNote, setNewNote] = useState({ title: "", content: "" });
   const [isAddingNote, setIsAddingNote] = useState(false);
+  const [reminderDate, setReminderDate] = useState<Date | undefined>(undefined);
+  const [reminderTime, setReminderTime] = useState<string | undefined>(undefined);
   
   const addNote = () => {
     if (newNote.title.trim() === "") {
@@ -38,8 +58,17 @@ const NotesFeature = () => {
       createdAt: new Date(),
     };
     
+    if (reminderDate && reminderTime) {
+      newNoteObject.reminder = {
+        date: reminderDate,
+        time: reminderTime
+      };
+    }
+    
     setNotes([newNoteObject, ...notes]);
     setNewNote({ title: "", content: "" });
+    setReminderDate(undefined);
+    setReminderTime(undefined);
     setIsAddingNote(false);
     toast.success("Note added successfully");
   };
@@ -48,6 +77,17 @@ const NotesFeature = () => {
     setNotes(notes.filter(note => note.id !== id));
     toast.success("Note deleted");
   };
+
+  const clearReminder = () => {
+    setReminderDate(undefined);
+    setReminderTime(undefined);
+  };
+
+  // Time options for the reminder
+  const timeOptions = [
+    "08:00", "09:00", "10:00", "11:00", "12:00", 
+    "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"
+  ];
 
   return (
     <Card>
@@ -79,6 +119,68 @@ const NotesFeature = () => {
                 value={newNote.content}
                 onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
               />
+              
+              {/* Reminder section */}
+              <div className="flex items-center mb-2 px-2 py-1 border rounded bg-slate-50">
+                <Bell className="h-4 w-4 text-slate-500 mr-2" />
+                <span className="text-sm text-slate-600 mr-2">Reminder:</span>
+                
+                {!reminderDate && !reminderTime ? (
+                  <div className="flex items-center gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-7 text-xs">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          Set Date
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={reminderDate}
+                          onSelect={setReminderDate}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 flex-1">
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                      {reminderDate ? format(reminderDate, "MMM d, yyyy") : "Select date"}
+                    </span>
+                    
+                    {reminderDate && !reminderTime && (
+                      <Select onValueChange={setReminderTime}>
+                        <SelectTrigger className="h-7 text-xs w-24">
+                          <SelectValue placeholder="Time" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {timeOptions.map(time => (
+                            <SelectItem key={time} value={time}>{time}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                    
+                    {reminderDate && reminderTime && (
+                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                        {reminderTime}
+                      </span>
+                    )}
+                    
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 w-6 p-0 ml-auto text-slate-400"
+                      onClick={clearReminder}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+              
               <div className="flex justify-end gap-2">
                 <Button 
                   variant="ghost" 
@@ -120,6 +222,16 @@ const NotesFeature = () => {
                   </Button>
                 </div>
                 <p className="text-sm text-slate-600 mt-1">{note.content}</p>
+                
+                {note.reminder && (
+                  <div className="flex items-center mt-2 text-xs text-slate-500">
+                    <Clock className="h-3 w-3 mr-1 text-blue-500" />
+                    <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
+                      Reminder: {format(note.reminder.date, "MMM d")} at {note.reminder.time}
+                    </span>
+                  </div>
+                )}
+                
                 <div className="text-xs text-slate-400 mt-2">
                   {note.createdAt.toLocaleDateString()} at {note.createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
