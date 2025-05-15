@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Bell, Search, MessageCircle } from "lucide-react";
+import { Bell, Search, MessageCircle, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,15 +10,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 const DashboardHeader = () => {
   const [unreadNotifications, setUnreadNotifications] = useState(3);
 
+  const clearNotifications = () => {
+    setUnreadNotifications(0);
+    toast.success("All notifications marked as read");
+  };
+
   return (
-    <header className="bg-white border-b border-slate-200">
+    <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 transition-colors duration-200">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <MessageCircle className="h-8 w-8 text-indigo-600" />
+          <MessageCircle className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
           <h1 className="text-2xl font-semibold">AI Assistant</h1>
         </div>
 
@@ -28,11 +34,11 @@ const DashboardHeader = () => {
             <input
               type="text"
               placeholder="Search messages and meetings..."
-              className="pl-10 pr-4 py-2 rounded-lg border border-slate-200 w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="pl-10 pr-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
           </div>
 
-          <div className="flex items-center">
+          <div className="flex items-center space-x-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
@@ -49,7 +55,19 @@ const DashboardHeader = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64">
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                <DropdownMenuLabel className="flex items-center justify-between">
+                  <span>Notifications</span>
+                  {unreadNotifications > 0 && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-auto py-0 px-2 text-xs"
+                      onClick={clearNotifications}
+                    >
+                      Mark all as read
+                    </Button>
+                  )}
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <span className="font-medium">Meeting in 15 minutes</span>
@@ -65,9 +83,25 @@ const DashboardHeader = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Settings className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>Account Settings</DropdownMenuItem>
+                <DropdownMenuItem>Integrations</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Support</DropdownMenuItem>
+                <DropdownMenuItem>Logout</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
-          <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+          <div className="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-800 dark:text-indigo-200 font-semibold">
             ME
           </div>
         </div>
