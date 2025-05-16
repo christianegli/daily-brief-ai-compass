@@ -5,21 +5,26 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-if (!supabaseUrl || !supabaseAnonKey) {
+// Check if Supabase environment variables are properly set
+const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
+
+if (!isSupabaseConfigured) {
   console.error('Missing Supabase environment variables. Make sure your Supabase integration is properly set up.');
 }
 
-// Provide a valid URL even if the environment variable is missing (to prevent runtime errors)
-// This will create a client that won't work, but won't crash the app immediately
+// Create the Supabase client
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder-url.supabase.co', 
   supabaseAnonKey || 'placeholder-key'
 );
 
-// Authentication helper functions
+// Authentication helper functions with configuration checks
 export const signUp = async (email: string, password: string) => {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return { data: null, error: new Error('Supabase configuration is missing. Please check your environment variables.') };
+  if (!isSupabaseConfigured) {
+    return { 
+      data: null, 
+      error: new Error('Supabase is not properly configured. Please check your Supabase integration in the project settings.') 
+    };
   }
   
   const { data, error } = await supabase.auth.signUp({ email, password });
@@ -27,8 +32,11 @@ export const signUp = async (email: string, password: string) => {
 };
 
 export const signIn = async (email: string, password: string) => {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return { data: null, error: new Error('Supabase configuration is missing. Please check your environment variables.') };
+  if (!isSupabaseConfigured) {
+    return { 
+      data: null, 
+      error: new Error('Supabase is not properly configured. Please check your Supabase integration in the project settings.') 
+    };
   }
   
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -36,8 +44,8 @@ export const signIn = async (email: string, password: string) => {
 };
 
 export const signOut = async () => {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return { error: new Error('Supabase configuration is missing. Please check your environment variables.') };
+  if (!isSupabaseConfigured) {
+    return { error: new Error('Supabase is not properly configured. Please check your Supabase integration in the project settings.') };
   }
   
   const { error } = await supabase.auth.signOut();
@@ -45,8 +53,11 @@ export const signOut = async () => {
 };
 
 export const getCurrentUser = async () => {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return { user: null, error: new Error('Supabase configuration is missing. Please check your environment variables.') };
+  if (!isSupabaseConfigured) {
+    return { 
+      user: null, 
+      error: new Error('Supabase is not properly configured. Please check your Supabase integration in the project settings.') 
+    };
   }
   
   const { data, error } = await supabase.auth.getSession();

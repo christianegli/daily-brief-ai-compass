@@ -1,7 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +9,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -19,6 +20,18 @@ const formSchema = z.object({
 const Login = () => {
   const [activeTab, setActiveTab] = useState("login");
   const { signIn, signUp, loading } = useAuth();
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [isSupabaseConfigured, setIsSupabaseConfigured] = useState(true);
+
+  useEffect(() => {
+    // Check if Supabase is configured by looking at environment variables
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      setIsSupabaseConfigured(false);
+    }
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -29,10 +42,16 @@ const Login = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (activeTab === "login") {
-      await signIn(values.email, values.password);
-    } else {
-      await signUp(values.email, values.password);
+    setAuthError(null);
+    
+    try {
+      if (activeTab === "login") {
+        await signIn(values.email, values.password);
+      } else {
+        await signUp(values.email, values.password);
+      }
+    } catch (error: any) {
+      setAuthError(error.message || "An error occurred during authentication");
     }
   };
 
@@ -43,6 +62,26 @@ const Login = () => {
           <CardTitle className="text-2xl text-center">AI Assistant Dashboard</CardTitle>
           <CardDescription className="text-center">Sign in to access your dashboard</CardDescription>
         </CardHeader>
+
+        {!isSupabaseConfigured && (
+          <div className="px-6 pb-2">
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Supabase is not properly configured. Please make sure your Supabase integration is set up correctly.
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
+
+        {authError && (
+          <div className="px-6 pb-2">
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{authError}</AlertDescription>
+            </Alert>
+          </div>
+        )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-2 w-full">
@@ -84,7 +123,7 @@ const Login = () => {
                 <Button 
                   type="submit" 
                   className="w-full" 
-                  disabled={loading}
+                  disabled={loading || !isSupabaseConfigured}
                 >
                   {loading ? "Processing..." : activeTab === "login" ? "Sign In" : "Register"}
                 </Button>
