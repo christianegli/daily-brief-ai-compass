@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,17 +21,6 @@ const Login = () => {
   const [activeTab, setActiveTab] = useState("login");
   const { signIn, signUp, loading } = useAuth();
   const [authError, setAuthError] = useState<string | null>(null);
-  const [isSupabaseConfigured, setIsSupabaseConfigured] = useState(true);
-
-  useEffect(() => {
-    // Check if Supabase is configured by looking at environment variables
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    
-    if (!supabaseUrl || !supabaseKey) {
-      setIsSupabaseConfigured(false);
-    }
-  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,17 +51,6 @@ const Login = () => {
           <CardTitle className="text-2xl text-center">AI Assistant Dashboard</CardTitle>
           <CardDescription className="text-center">Sign in to access your dashboard</CardDescription>
         </CardHeader>
-
-        {!isSupabaseConfigured && (
-          <div className="px-6 pb-2">
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Supabase is not properly configured. Please make sure your Supabase integration is set up correctly.
-              </AlertDescription>
-            </Alert>
-          </div>
-        )}
 
         {authError && (
           <div className="px-6 pb-2">
@@ -123,7 +101,7 @@ const Login = () => {
                 <Button 
                   type="submit" 
                   className="w-full" 
-                  disabled={loading || !isSupabaseConfigured}
+                  disabled={loading}
                 >
                   {loading ? "Processing..." : activeTab === "login" ? "Sign In" : "Register"}
                 </Button>

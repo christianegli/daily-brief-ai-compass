@@ -1,11 +1,13 @@
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { supabase, getCurrentUser } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
+import { User, Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
-  user: any | null;
+  user: User | null;
+  session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
@@ -14,6 +16,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
+  session: null,
   loading: true,
   signIn: async () => {},
   signUp: async () => {},
@@ -21,37 +24,29 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const { user: currentUser } = await getCurrentUser();
-        setUser(currentUser || null);
-      } catch (error) {
-        console.error('Error getting current user:', error);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Initial user check
-    checkUser();
-
-    // Set up auth state change listener
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user || null);
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, currentSession) => {
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
         setLoading(false);
       }
     );
 
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleSignIn = async (email: string, password: string) => {
@@ -67,11 +62,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       setUser(data?.user || null);
+      setSession(data?.session || null);
       toast.success("Successfully signed in!");
       navigate('/');
     } catch (error: any) {
       console.error('Error signing in:', error);
       toast.error(error.message || "Failed to sign in");
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -93,6 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error: any) {
       console.error('Error signing up:', error);
       toast.error(error.message || "Failed to sign up");
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -108,6 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       setUser(null);
+      setSession(null);
       toast.success("Successfully signed out!");
       navigate('/login');
     } catch (error: any) {
@@ -122,6 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider
       value={{
         user,
+        session,
         loading,
         signIn: handleSignIn,
         signUp: handleSignUp,
