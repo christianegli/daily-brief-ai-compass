@@ -121,6 +121,93 @@ const mockAnalytics: AnalyticsData = {
 
 // API Functions - Messages
 export const getMessages = async () => {
+  // Always return mock data for now
+  // This prevents TypeScript errors until the tables are created in Supabase
+  return { data: mockMessages, error: null };
+};
+
+export const markMessageAsRead = async (messageId: string) => {
+  // Use mock implementation
+  const updatedMessages = mockMessages.map(msg => {
+    if (msg.id === messageId) {
+      return { ...msg, read_at: new Date().toISOString() };
+    }
+    return msg;
+  });
+  
+  return { data: updatedMessages.find(msg => msg.id === messageId) || null, error: null };
+};
+
+// API Functions - Meetings
+export const getMeetings = async () => {
+  // Always return mock data for now
+  return { data: mockMeetings, error: null };
+};
+
+export const createMeeting = async (meeting: Omit<Meeting, 'id' | 'user_id'>) => {
+  // Create a mock implementation
+  const newMeeting = {
+    id: `mock-${Date.now()}`,
+    user_id: 'current-user',
+    ...meeting
+  };
+  
+  return { data: newMeeting, error: null };
+};
+
+// API Functions - Message Drafts
+export const getMessageDrafts = async () => {
+  // Always return mock data for now
+  return { data: mockDrafts, error: null };
+};
+
+export const saveMessageDraft = async (draft: Omit<MessageDraft, 'id' | 'user_id'>) => {
+  // Create a mock implementation
+  const newDraft = {
+    id: `mock-${Date.now()}`,
+    user_id: 'current-user',
+    ...draft
+  };
+  
+  return { data: newDraft, error: null };
+};
+
+export const updateMessageDraft = async (id: string, content: string) => {
+  // Use mock implementation
+  const updatedDrafts = mockDrafts.map(draft => {
+    if (draft.id === id) {
+      return { 
+        ...draft, 
+        content, 
+        last_edited: new Date().toISOString() 
+      };
+    }
+    return draft;
+  });
+  
+  return { 
+    data: updatedDrafts.find(draft => draft.id === id) || null, 
+    error: null 
+  };
+};
+
+export const deleteMessageDraft = async (id: string) => {
+  // In a real implementation, this would delete the draft
+  return { error: null };
+};
+
+// API Functions - Analytics
+export const getAnalytics = async () => {
+  // Always return mock data for now
+  return { data: mockAnalytics, error: null };
+};
+
+// Once you've created the database tables using the SQL commands provided earlier,
+// you can replace these mock implementations with the real Supabase API calls.
+// Here's a commented example of how the real implementation would look:
+
+/*
+export const getMessages = async () => {
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) return { data: mockMessages, error: null };
 
@@ -138,152 +225,4 @@ export const getMessages = async () => {
     return { data: mockMessages, error };
   }
 };
-
-export const markMessageAsRead = async (messageId: string) => {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user.user) return { data: null, error: new Error('Not authenticated') };
-
-  try {
-    const { data, error } = await supabase
-      .from('messages')
-      .update({ read_at: new Date().toISOString() })
-      .eq('id', messageId);
-    
-    if (error) throw error;
-    return { data, error: null };
-  } catch (error) {
-    console.error('Error marking message as read:', error);
-    return { data: null, error };
-  }
-};
-
-// API Functions - Meetings
-export const getMeetings = async () => {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user.user) return { data: mockMeetings, error: null };
-
-  try {
-    const { data, error } = await supabase
-      .from('meetings')
-      .select('*')
-      .eq('user_id', user.user.id)
-      .order('start_time', { ascending: true });
-    
-    if (error) throw error;
-    return { data: data || mockMeetings, error: null };
-  } catch (error) {
-    console.error('Error fetching meetings:', error);
-    return { data: mockMeetings, error };
-  }
-};
-
-export const createMeeting = async (meeting: Omit<Meeting, 'id' | 'user_id'>) => {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user.user) return { data: null, error: new Error('Not authenticated') };
-
-  try {
-    const { data, error } = await supabase
-      .from('meetings')
-      .insert([{ ...meeting, user_id: user.user.id }])
-      .select();
-    
-    if (error) throw error;
-    return { data, error: null };
-  } catch (error) {
-    console.error('Error creating meeting:', error);
-    return { data: null, error };
-  }
-};
-
-// API Functions - Message Drafts
-export const getMessageDrafts = async () => {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user.user) return { data: mockDrafts, error: null };
-
-  try {
-    const { data, error } = await supabase
-      .from('message_drafts')
-      .select('*')
-      .eq('user_id', user.user.id)
-      .order('last_edited', { ascending: false });
-    
-    if (error) throw error;
-    return { data: data || mockDrafts, error: null };
-  } catch (error) {
-    console.error('Error fetching message drafts:', error);
-    return { data: mockDrafts, error };
-  }
-};
-
-export const saveMessageDraft = async (draft: Omit<MessageDraft, 'id' | 'user_id'>) => {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user.user) return { data: null, error: new Error('Not authenticated') };
-
-  try {
-    const { data, error } = await supabase
-      .from('message_drafts')
-      .insert([{ ...draft, user_id: user.user.id }])
-      .select();
-    
-    if (error) throw error;
-    return { data, error: null };
-  } catch (error) {
-    console.error('Error saving message draft:', error);
-    return { data: null, error };
-  }
-};
-
-export const updateMessageDraft = async (id: string, content: string) => {
-  try {
-    const { data, error } = await supabase
-      .from('message_drafts')
-      .update({ 
-        content, 
-        last_edited: new Date().toISOString() 
-      })
-      .eq('id', id)
-      .select();
-    
-    if (error) throw error;
-    return { data, error: null };
-  } catch (error) {
-    console.error('Error updating message draft:', error);
-    return { data: null, error };
-  }
-};
-
-export const deleteMessageDraft = async (id: string) => {
-  try {
-    const { error } = await supabase
-      .from('message_drafts')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
-    return { error: null };
-  } catch (error) {
-    console.error('Error deleting message draft:', error);
-    return { error };
-  }
-};
-
-// API Functions - Analytics
-export const getAnalytics = async () => {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user.user) return { data: mockAnalytics, error: null };
-
-  try {
-    const { data, error } = await supabase
-      .from('analytics')
-      .select('*')
-      .eq('user_id', user.user.id)
-      .order('date', { ascending: false })
-      .limit(1);
-    
-    if (error) throw error;
-    return { data: data?.[0] || mockAnalytics, error: null };
-  } catch (error) {
-    console.error('Error fetching analytics:', error);
-    return { data: mockAnalytics, error };
-  }
-};
+*/
