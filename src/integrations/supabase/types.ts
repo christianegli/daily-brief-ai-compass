@@ -42,6 +42,84 @@ export type Database = {
         }
         Relationships: []
       }
+      content_summaries: {
+        Row: {
+          created_at: string
+          id: string
+          is_urgent: boolean | null
+          original_content: string | null
+          priority_score: number | null
+          processed_at: string
+          source_id: string | null
+          source_type: string
+          summary: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_urgent?: boolean | null
+          original_content?: string | null
+          priority_score?: number | null
+          processed_at?: string
+          source_id?: string | null
+          source_type: string
+          summary: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_urgent?: boolean | null
+          original_content?: string | null
+          priority_score?: number | null
+          processed_at?: string
+          source_id?: string | null
+          source_type?: string
+          summary?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      integration_settings: {
+        Row: {
+          access_token: string | null
+          created_at: string
+          id: string
+          integration_type: string
+          is_connected: boolean
+          refresh_token: string | null
+          settings: Json | null
+          token_expiry: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string
+          id?: string
+          integration_type: string
+          is_connected?: boolean
+          refresh_token?: string | null
+          settings?: Json | null
+          token_expiry?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string
+          id?: string
+          integration_type?: string
+          is_connected?: boolean
+          refresh_token?: string | null
+          settings?: Json | null
+          token_expiry?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       meetings: {
         Row: {
           description: string | null

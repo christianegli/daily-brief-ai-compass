@@ -3,6 +3,7 @@ import { useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import DashboardHeader from "@/components/DashboardHeader";
 import MessagesOverview from "@/components/MessagesOverview";
 import MeetingsOverview from "@/components/MeetingsOverview";
@@ -15,6 +16,7 @@ import NotificationSettings from "@/components/NotificationSettings";
 import MessageDrafting from "@/components/MessageDrafting";
 import AnalyticsDashboard from "@/components/AnalyticsDashboard";
 import MeetingPreparation from "@/components/MeetingPreparation";
+import IntegrationsManager from "@/components/IntegrationsManager";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -58,11 +60,12 @@ const Index = () => {
           className="w-full"
         >
           <div className="mb-8">
-            <TabsList className="grid grid-cols-4 w-full max-w-md">
+            <TabsList className="grid grid-cols-5 w-full max-w-md">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="messages">Messages</TabsTrigger>
               <TabsTrigger value="meetings">Meetings</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
+              <TabsTrigger value="integrations">Integrations</TabsTrigger>
             </TabsList>
           </div>
           
@@ -106,6 +109,31 @@ const Index = () => {
               <div className="space-y-8">
                 <MiniCalendar />
                 <NotesFeature />
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="integrations">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="lg:col-span-1">
+                <IntegrationsManager />
+              </div>
+              <div className="lg:col-span-1 space-y-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Integration Status</CardTitle>
+                    <CardDescription>
+                      Check the status of your connected services and data syncronization
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-blue-700">
+                        Connect your accounts to start receiving AI-powered summaries and insights from your messages, emails, and calendar events.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </TabsContent>

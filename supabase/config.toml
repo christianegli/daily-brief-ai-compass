@@ -1,1 +1,11 @@
+
 project_id = "ohkcyvxruhatxxekxjio"
+
+[functions.summarize-content]
+verify_jwt = true
+
+[functions.google-integration]
+verify_jwt = true
+
+[functions.slack-integration]
+verify_jwt = true
