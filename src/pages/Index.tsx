@@ -1,6 +1,8 @@
 
 import { useState } from "react";
+import { RefreshCw } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import DashboardHeader from "@/components/DashboardHeader";
 import MessagesOverview from "@/components/MessagesOverview";
 import MeetingsOverview from "@/components/MeetingsOverview";
@@ -13,11 +15,19 @@ import NotificationSettings from "@/components/NotificationSettings";
 import MessageDrafting from "@/components/MessageDrafting";
 import AnalyticsDashboard from "@/components/AnalyticsDashboard";
 import MeetingPreparation from "@/components/MeetingPreparation";
-import QuickActions from "@/components/QuickActions";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    // Simulate refresh delay
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
+  };
   
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 dark:text-white transition-colors duration-200">
@@ -25,12 +35,20 @@ const Index = () => {
       
       <main className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">AI Assistant Dashboard</h1>
-          <ThemeToggle />
-        </div>
-        
-        <div className="mb-6">
-          <QuickActions />
+          <h1 className="text-2xl font-bold">Work Control Center</h1>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className={isRefreshing ? "animate-spin" : ""}
+            >
+              <RefreshCw className="h-4 w-4" />
+              <span className="sr-only">Refresh data</span>
+            </Button>
+            <ThemeToggle />
+          </div>
         </div>
         
         <Tabs 

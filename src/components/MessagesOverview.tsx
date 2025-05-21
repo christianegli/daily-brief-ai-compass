@@ -11,6 +11,7 @@ interface Message {
   platform: "slack" | "gmail" | "whatsapp";
   sender: string;
   content: string;
+  summary?: string;
   time: string;
   unread: boolean;
   isUrgent?: boolean;
@@ -23,13 +24,14 @@ interface MessagesOverviewProps {
 const MessagesOverview = ({ compact = false }: MessagesOverviewProps) => {
   const [activeTab, setActiveTab] = useState("all");
 
-  // Mock messages data
+  // Mock messages data with summaries
   const messages: Message[] = [
     {
       id: 1,
       platform: "slack",
       sender: "Sarah Johnson",
       content: "Can you review the presentation before tomorrow's meeting?",
+      summary: "Urgent request for presentation review before tomorrow's meeting.",
       time: "10 min ago",
       unread: true,
       isUrgent: true,
@@ -39,6 +41,7 @@ const MessagesOverview = ({ compact = false }: MessagesOverviewProps) => {
       platform: "gmail",
       sender: "Michael Thompson",
       content: "Re: Project proposal - I've attached the updated numbers for review",
+      summary: "Updated project proposal numbers shared for review.",
       time: "1 hour ago",
       unread: true,
     },
@@ -47,6 +50,7 @@ const MessagesOverview = ({ compact = false }: MessagesOverviewProps) => {
       platform: "whatsapp",
       sender: "Team Group",
       content: "Meeting location changed to Conference Room B",
+      summary: "Meeting location has been moved to Conference Room B.",
       time: "2 hours ago",
       unread: true,
     },
@@ -55,6 +59,7 @@ const MessagesOverview = ({ compact = false }: MessagesOverviewProps) => {
       platform: "slack",
       sender: "Dev Team",
       content: "The new feature has been deployed to production",
+      summary: "Notification that new feature deployment to production is complete.",
       time: "3 hours ago",
       unread: false,
     },
@@ -63,6 +68,7 @@ const MessagesOverview = ({ compact = false }: MessagesOverviewProps) => {
       platform: "gmail",
       sender: "Client Support",
       content: "Follow-up on yesterday's discussion about the timeline",
+      summary: "Urgent follow-up regarding previously discussed project timeline.",
       time: "Yesterday",
       unread: false,
       isUrgent: true,
@@ -72,6 +78,7 @@ const MessagesOverview = ({ compact = false }: MessagesOverviewProps) => {
       platform: "whatsapp",
       sender: "Alice",
       content: "Are we still on for lunch next week?",
+      summary: "Confirmation request for next week's lunch appointment.",
       time: "2 days ago",
       unread: false,
     },
@@ -179,7 +186,14 @@ const MessagesOverview = ({ compact = false }: MessagesOverviewProps) => {
                         <span className="text-xs text-slate-500">{message.time}</span>
                       </div>
                     </div>
-                    <p className={`text-sm ${message.unread ? 'text-slate-800' : 'text-slate-500'}`}>
+                    
+                    {/* Display summary if available */}
+                    <p className={`text-sm ${message.unread ? 'font-medium text-slate-800' : 'text-slate-500'}`}>
+                      {message.summary || message.content}
+                    </p>
+                    
+                    {/* Original message content */}
+                    <p className={`text-xs mt-1 ${message.unread ? 'text-slate-600' : 'text-slate-400'}`}>
                       {message.content}
                     </p>
                   </div>
